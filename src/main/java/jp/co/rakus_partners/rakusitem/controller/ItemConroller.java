@@ -66,17 +66,18 @@ public class ItemConroller {
         searchForm.setDaiCategoryId(null);
         searchForm.setChuCategoryId(null);
         searchForm.setSyoCategoryId(null);
-
-        String[] categoryArray = searchForm.getCategoryName().split("/");
-        if (categoryArray.length >= 1 && !"".equals(categoryArray[0])) {
-            Category daiCategory = getCategoryByName(categories, categoryArray[0]);
-            searchForm.setDaiCategoryId(daiCategory.getId());
-            if (categoryArray.length >= 2) {
-                Category chuCategory = getCategoryByName(daiCategory.getChildCategories(), categoryArray[1]);
-                searchForm.setChuCategoryId(chuCategory.getId());
-                if (categoryArray.length >= 3) {
-                    Category syoCategory = getCategoryByName(chuCategory.getChildCategories(), categoryArray[2]);
-                    searchForm.setSyoCategoryId(syoCategory.getId());
+        if (searchForm.getCategoryName() != null) {
+            String[] categoryArray = searchForm.getCategoryName().split("/");
+            if (categoryArray.length >= 1 && !"".equals(categoryArray[0])) {
+                Category daiCategory = getCategoryByName(categories, categoryArray[0]);
+                searchForm.setDaiCategoryId(daiCategory.getId());
+                if (categoryArray.length >= 2) {
+                    Category chuCategory = getCategoryByName(daiCategory.getChildCategories(), categoryArray[1]);
+                    searchForm.setChuCategoryId(chuCategory.getId());
+                    if (categoryArray.length >= 3) {
+                        Category syoCategory = getCategoryByName(chuCategory.getChildCategories(), categoryArray[2]);
+                        searchForm.setSyoCategoryId(syoCategory.getId());
+                    }
                 }
             }
         }

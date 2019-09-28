@@ -86,15 +86,15 @@ public class Item {
     }
 
     public String getDaiCategoryName() {
-        return nameAll.split("/")[0];
+        return nameAll != null ? nameAll.split("/")[0] : "";
     }
 
     public String getChuCategoryName() {
-        return nameAll.split("/")[1];
+        return nameAll != null ? nameAll.split("/")[1] : "";
     }
 
     public String getSyoCategoryName() {
-        return nameAll.split("/")[2];
+        return nameAll != null ? nameAll.split("/")[2] : "";
     }
 
 }

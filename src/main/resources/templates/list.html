@@ -82,18 +82,7 @@
     }
   }
 
-  // DOM読み込み完了時
-  $(function() {
-
-    // カテゴリーリンククリック時のイベント処理設定
-    $('.categoryLink').on('click', function() {
-      $('#searchForm [name=categoryName]').val($(this).data('category'));
-      $('#searchForm').submit();
-      return false;
-    });
-
-    // 検索ボタンクリック時のイベント処理設定
-    $('#button-search').on('click', function() {
+  function createCategoryName() {
       let categoryName = '';
       if ($('#daiSelect option:selected') && $('#daiSelect option:selected').val() != '') {
         categoryName += $('#daiSelect option:selected').text();
@@ -104,9 +93,33 @@
           }
         }
       }
-      $('#searchForm [name=categoryName]').val(categoryName);
+      return categoryName;
+  }
+
+  // DOM読み込み完了時
+  $(function() {
+
+    // カテゴリーリンククリック時のイベント処理設定
+    $('.categoryLink').on('click', function() {
+      $('#searchForm [name=categoryName]').val($(this).data('category'));
+      $('#searchForm [name=page]').val(1);
       $('#searchForm').submit();
       return false;
+    });
+
+    // 検索ボタンクリック時のイベント処理設定
+    $('#button-search').on('click', function() {
+      let categoryName = createCategoryName();
+      $('#searchForm [name=page]').val(1);
+      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm').submit();
+    });
+
+    // Goボタンクリック時のイベント処理設定
+    $('#button-go').on('click', function() {
+      let categoryName = createCategoryName();
+      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm').submit();
     });
 
     // 大カテゴリープルダウン変更時のイベント処理設定
@@ -117,6 +130,28 @@
     // 中カテゴリープルダウン変更時のイベント処理設定
     $('#chuSelect').on('change', function() {
       createSyoCategorySelect();
+    });
+
+    // next,previousリンクの無効化
+    var currentPage = parseInt($('#searchForm [name=page]').val());
+    var maxPage = parseInt($('#maxPage').text());
+    if (currentPage == 1) {
+      $('.previous').addClass('disabled');
+    }
+    if (currentPage == maxPage) {
+      $('.next').addClass('disabled');
+    }
+
+    // nextリンククリック時のイベント処理設定
+    $('.next').on('click', function() {
+      $('#searchForm [name=page]').val(currentPage + 1);
+      $('#searchForm').submit();
+    });
+
+    // previousリンククリック時のイベント処理設定
+    $('.previous').on('click', function() {
+      $('#searchForm [name=page]').val(currentPage - 1);
+      $('#searchForm').submit();
     });
 
     // 全カテゴリー情報取得
@@ -163,8 +198,8 @@
     </div>
 
     <!-- 検索フォーム -->
-    <div id="forms">
-      <form id="searchForm" method="POST" th:action="@{/item/search}" class="form-inline" role="form" th:object="${searchForm}">
+    <form id="searchForm" method="POST" th:action="@{/item/search}" class="form-inline" role="form" th:object="${searchForm}">
+      <div id="forms">
         <div class="form-group">
           <input type="input" class="form-control" id="itemKeyword" placeholder="item name"/>
         </div>
@@ -180,10 +215,21 @@
         </div>
         <div class="form-group"></div>
         <input type="hidden" name="categoryName" />
-        <input type="hidden" th:field="*{page}" />
-        <button id="button-search" type="submit" class="btn btn-default"><i class="fa fa-angle-double-right"></i> 検索</button>
-      </form>
-    </div>
+        <button id="button-search" type="button" class="btn btn-default"><i class="fa fa-angle-double-right"></i> 検索</button>
+      </div>
+      <div id="select-page">
+        <div class="form-group">
+          <div class="input-group col-xs-6">
+            <label></label>
+            <input type="text" class="form-control" th:field="*{page}" />
+            <div class="input-group-addon">/ <span id="maxPage" th:text="${maxPage}">20</span></div>
+          </div>
+          <div class="input-group col-xs-1">
+            <button id="button-go" type="button" class="btn btn-default">Go</button>
+          </div>
+        </div>
+      </div>
+    </form>
 
     <!-- pagination -->
     <div class="pages">
@@ -212,9 +258,12 @@
             <td class="item-name"><a th:href="@{/item/detail}" th:text="${item.name}">Razer BlackWidow Chroma Keyboard</a></td>
             <td class="item-price" th:text="${item.price}">52.0</td>
             <td class="item-category">
-              <a class="categoryLink" th:data-category="${item.daiCategoryName}" th:text="${item.daiCategoryName}">Electronics</a> /
-              <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName}" th:text="${item.chuCategoryName}">Computers &amp; Tablets</a> /
-              <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName} + '/' + ${item.syoCategoryName}" th:text="${item.syoCategoryName}">Components &amp; Parts</a></td>
+              <div th:if="${item.nameAll}">
+                <a class="categoryLink" th:data-category="${item.daiCategoryName}" th:text="${item.daiCategoryName}">Electronics</a> /
+                <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName}" th:text="${item.chuCategoryName}">Computers &amp; Tablets</a> /
+                <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName} + '/' + ${item.syoCategoryName}" th:text="${item.syoCategoryName}">Components &amp; Parts</a>
+              </div>
+            </td>
             <td class="item-brand"><a th:href="@{/item/search}" th:text="${item.brand}">Razer</a></td>
             <td class="item-condition" th:text="${item.condition}">3</td>
           </tr>
@@ -230,22 +279,6 @@
           <li class="next"><a href="#">next &rarr;</a></li>
         </ul>
       </nav>
-      <!-- ページ番号を指定して表示するフォーム -->
-      <div id="select-page">
-        <form class="form-inline">
-          <div class="form-group">
-            <div class="input-group col-xs-6">
-              <label></label>
-              <input type="text" class="form-control"/>
-              <!-- 総ページ数 -->
-              <div class="input-group-addon">/ <span th:text="${maxPage}">20</span></div>
-            </div>
-            <div class="input-group col-xs-1">
-              <button type="submit" class="btn btn-default">Go</button>
-            </div>
-          </div>
-        </form>
-      </div>
     </div>
   </div>
 </body>
