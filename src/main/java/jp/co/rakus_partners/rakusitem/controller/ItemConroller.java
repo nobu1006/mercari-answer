@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @Controller
@@ -18,6 +19,9 @@ import java.util.List;
 public class ItemConroller {
 
     public static final int ROW_PAR_PAGE = 30;
+
+    @Autowired
+    private HttpSession session;
 
     @Autowired
     private ItemService itemService;
@@ -40,7 +44,11 @@ public class ItemConroller {
         if (searchCount % ROW_PAR_PAGE != 0) {
             maxPage++;
         }
-        setCategoryIds(searchForm, categoryService.findAllCategories());
+        if (searchForm.getPage() > maxPage) {
+            searchForm.setPage(1);
+        }
+
+        setCategoryIds(searchForm, getCategories());
 
         model.addAttribute("itemList", itemService.search(searchForm));
         model.addAttribute("maxPage", maxPage);
@@ -50,9 +58,23 @@ public class ItemConroller {
     @RequestMapping("/categories")
     @ResponseBody
     public List<Category> categories() {
-        return categoryService.findAllCategories();
+        return getCategories();
     }
 
+    /**
+     * 全カテゴリー情報を取得する.
+     * セッションに保持し、セッションにない場合のみDBから取得する.
+     *
+     * @return
+     */
+    private List<Category> getCategories() {
+        List<Category> categories = (List<Category>) session.getAttribute("categories");
+        if (categories == null) {
+            categories = categoryService.findAllCategories();
+            session.setAttribute("categories", categories);
+        }
+        return categories;
+    }
 
     /**
      * 検索完了時、カテゴリーのプルダウンを維持するために

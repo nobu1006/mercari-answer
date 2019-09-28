@@ -4,6 +4,10 @@ import java.util.List;
 
 public class Category {
 
+    private int id;
+    private String name;
+    private List<Category> childCategories;
+
     public int getId() {
         return id;
     }
@@ -19,11 +23,6 @@ public class Category {
     public void setName(String name) {
         this.name = name;
     }
-
-    private int id;
-    private String name;
-
-    private List<Category> childCategories;
 
     public List<Category> getChildCategories() {
         return childCategories;
