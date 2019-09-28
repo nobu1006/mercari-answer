@@ -27,19 +27,19 @@ public class ItemRepository {
 
     public List<Item> search(SearchForm searchForm) {
 
-        MapSqlParameterSource param = new MapSqlParameterSource();
-        String sql = createSql(searchForm, param, null);
-        return namedJdbcTemplate.query(sql, param, ROW_MAPPER);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        String sql = createSql(searchForm, params, null);
+        return namedJdbcTemplate.query(sql, params, ROW_MAPPER);
 
     }
 
     public Integer searchCount(SearchForm searchForm) {
-        MapSqlParameterSource param = new MapSqlParameterSource();
-        String sql = createSql(searchForm, param, "count");
-        return namedJdbcTemplate.queryForObject(sql, param, Integer.class);
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        String sql = createSql(searchForm, params, "count");
+        return namedJdbcTemplate.queryForObject(sql, params, Integer.class);
     }
 
-    private String createSql(SearchForm searchForm, MapSqlParameterSource param, String mode) {
+    private String createSql(SearchForm searchForm, MapSqlParameterSource params, String mode) {
 
         String sql = "SELECT";
                 sql += "  i.id id";
@@ -57,7 +57,7 @@ public class ItemRepository {
 
         if (!StringUtils.isEmpty(searchForm.getCategoryName())) {
             sql += " AND name_all LIKE :name_all";
-            param.addValue("name_all", searchForm.getCategoryName() + "%");
+            params.addValue("name_all", searchForm.getCategoryName() + "%");
         }
 
         if ("count".equals(mode)) {
@@ -67,6 +67,9 @@ public class ItemRepository {
             sql += " LIMIT 30 OFFSET " + ItemConroller.ROW_PAR_PAGE * (searchForm.getPage() - 1);
         }
         logger.info("sql = " + sql);
+        for (String paramName : params.getParameterNames()) {
+            logger.info(paramName + " = " + params.getValue(paramName));
+        }
         return sql;
     }
 
