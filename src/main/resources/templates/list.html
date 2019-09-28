@@ -55,7 +55,9 @@
       createSyoCategorySelect();
     } else {
       $('#chuSelect').html('');
+      $('#chuCategoryId').val('');
       $('#syoSelect').html('');
+      $('#syoCategoryId').val('');
     }
   }
 
@@ -79,9 +81,10 @@
       }
     } else {
       $('#syoSelect').html('');
+      $('#syoCategoryId').val('');
     }
   }
-
+  // カテゴリーのプルダウンの選択文字列を連結
   function createCategoryName() {
       let categoryName = '';
       if ($('#daiSelect option:selected') && $('#daiSelect option:selected').val() != '') {
@@ -110,15 +113,13 @@
     // 検索ボタンクリック時のイベント処理設定
     $('#button-search').on('click', function() {
       $('#searchForm [name=page]').val(1);
-      let categoryName = createCategoryName();
-      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm [name=categoryName]').val(createCategoryName());
       $('#searchForm').submit();
     });
 
     // Goボタンクリック時のイベント処理設定
     $('#button-go').on('click', function() {
-      let categoryName = createCategoryName();
-      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm [name=categoryName]').val(createCategoryName());
       $('#searchForm').submit();
     });
 
@@ -145,16 +146,14 @@
     // nextリンククリック時のイベント処理設定
     $('.next').on('click', function() {
       $('#searchForm [name=page]').val(currentPage + 1);
-      let categoryName = createCategoryName();
-      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm [name=categoryName]').val(createCategoryName());
       $('#searchForm').submit();
     });
 
     // previousリンククリック時のイベント処理設定
     $('.previous').on('click', function() {
       $('#searchForm [name=page]').val(currentPage - 1);
-      let categoryName = createCategoryName();
-      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm [name=categoryName]').val(createCategoryName());
       $('#searchForm').submit();
     });
 
