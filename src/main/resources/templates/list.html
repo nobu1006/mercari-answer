@@ -109,8 +109,8 @@
 
     // 検索ボタンクリック時のイベント処理設定
     $('#button-search').on('click', function() {
-      let categoryName = createCategoryName();
       $('#searchForm [name=page]').val(1);
+      let categoryName = createCategoryName();
       $('#searchForm [name=categoryName]').val(categoryName);
       $('#searchForm').submit();
     });
@@ -145,12 +145,16 @@
     // nextリンククリック時のイベント処理設定
     $('.next').on('click', function() {
       $('#searchForm [name=page]').val(currentPage + 1);
+      let categoryName = createCategoryName();
+      $('#searchForm [name=categoryName]').val(categoryName);
       $('#searchForm').submit();
     });
 
     // previousリンククリック時のイベント処理設定
     $('.previous').on('click', function() {
       $('#searchForm [name=page]').val(currentPage - 1);
+      let categoryName = createCategoryName();
+      $('#searchForm [name=categoryName]').val(categoryName);
       $('#searchForm').submit();
     });
 
