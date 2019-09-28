@@ -1,0 +1,45 @@
+@charset "utf-8";
+/* navbar */
+span#loginName{
+  margin-right: 1em;
+}
+
+/* list.html */
+div#forms{
+  margin: 2em 2em 1em;
+}
+div#main{
+  padding: 0 4em 2em;
+}
+div.pages{
+  margin: 0 4em 0;
+}
+div#select-page{
+  text-align: right;
+}
+div#addItemButton{
+  text-align: right;
+}
+table#item-table{
+  margin-bottom: 0;
+}
+
+/* detail.html */
+div#details{
+  margin: 2em 0 2em;
+}
+
+/* edit.html add.html */
+div#input-main{
+  margin-bottom: 4em;
+}
+
+/* login.html */
+div#login{
+  width: 40em;
+}
+
+/* bootstrapのものを上書き */
+.btn-default{
+  background-image: none;
+}

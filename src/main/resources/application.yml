@@ -1,0 +1,12 @@
+spring: 
+#  batch:
+#    initialize-schema: always
+#    job:
+#      enabled: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mercari3
+    username: postgres
+    password: postgres
+#    tomcat:
+#      default-auto-commit: false

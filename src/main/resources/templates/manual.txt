@@ -1,0 +1,12 @@
+﻿/** HTMLモックの説明 */
+
+<-- 各ファイル紹介 -->
+login.html -> ログインページ.
+register.html -> ユーザ登録ページ.
+list.html -> 商品リスト. 実質トップページ. 30件表示.
+detail.html -> 詳細ページ.
+edit.html -> 商品編集ページ.
+add.html -> 商品追加ページ. 入力値エラーメッセージ表示位置はこれを参考にしてください.
+mercari.css -> 共通のCSSファイル
+
+CSSフレームワーク:Bootstrap3

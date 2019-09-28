@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- css -->
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"/>
+  <link rel="stylesheet" th:href="@{/css/mercari.css}"/>
+  <!-- script -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <title>Rakus Items</title>
+<script>
+
+  var daiCategories;
+  var selectedDaiCategory;
+  var chuCategories;
+  var selectedChuCategory;
+  var syoCategories;
+
+  // カテゴリーのプルダウン設定
+  function createDaiCategorySelect() {
+    var daiOptions = '<option value="">- daiCategory -</option>';
+    for (let i = 0; i < daiCategories.length; i++) {
+      let daiCategory = daiCategories[i];
+      let selectedStr = $('#searchForm [name=daiCategoryId]').val() == daiCategory.id ? ' selected' : '';
+      daiOptions += '<option value="' + daiCategory.id + '"' + selectedStr + '>' + daiCategory.name + '</option>';
+    }
+    $('#daiSelect').html(daiOptions);
+    createChuCategorySelect();
+  }
+  
+  // 中カテゴリーのプルダウン生成
+  function createChuCategorySelect() {
+    let selectedDaiCategoryValue = $('#daiSelect option:selected').val();
+    if (selectedDaiCategoryValue != '') {
+      for (let i = 0; i < daiCategories.length; i++) {
+        let daiCategory = daiCategories[i];
+        if (daiCategory.id == selectedDaiCategoryValue) {
+          selectedDaiCategory = daiCategory;
+          var chuOptions = '<option value="">- chuCategory -</option>';
+          chuCategories = daiCategory.childCategories;
+          for (let j = 0; j < chuCategories.length; j++) {
+            let chuCategory = chuCategories[j];
+            let selectedStr = $('#searchForm [name=chuCategoryId]').val() == chuCategory.id ? ' selected' : '';
+            chuOptions += '<option value="' + chuCategory.id + '"' + selectedStr + '>' + chuCategory.name + '</option>';
+          }
+          $('#chuSelect').html(chuOptions);
+        }
+      }
+      createSyoCategorySelect();
+    } else {
+      $('#chuSelect').html('');
+      $('#syoSelect').html('');
+    }
+  }
+
+  // 小カテゴリーのプルダウン生成
+  function createSyoCategorySelect() {
+    let selectedChuCategoryValue = $('#chuSelect option:selected').val();
+    if (selectedChuCategoryValue != '') {
+      for (let i = 0; i < chuCategories.length; i++) {
+        let chuCategory = chuCategories[i];
+        if (chuCategory.id == selectedChuCategoryValue) {
+          selectedChuCategory = chuCategory;
+          var syoOptions = '<option value="">- syoCategory -</option>';
+          syoCategories = chuCategory.childCategories;
+          for (let j = 0; j < syoCategories.length; j++) {
+            let syoCategory = syoCategories[j];
+            let selectedStr = $('#searchForm [name=syoCategoryId]').val() == syoCategory.id ? ' selected' : '';
+            syoOptions += '<option value="' + syoCategory.id + '"' + selectedStr + '>' + syoCategory.name + '</option>';
+          }
+          $('#syoSelect').html(syoOptions);
+        }
+      }
+    } else {
+      $('#syoSelect').html('');
+    }
+  }
+
+  // DOM読み込み完了時
+  $(function() {
+
+    // カテゴリーリンククリック時のイベント処理設定
+    $('.categoryLink').on('click', function() {
+      $('#searchForm [name=categoryName]').val($(this).data('category'));
+      $('#searchForm').submit();
+      return false;
+    });
+
+    // 検索ボタンクリック時のイベント処理設定
+    $('#button-search').on('click', function() {
+      let categoryName = '';
+      if ($('#daiSelect option:selected') && $('#daiSelect option:selected').val() != '') {
+        categoryName += $('#daiSelect option:selected').text();
+        if ($('#chuSelect option:selected').val() != '') {
+          categoryName += '/' + $('#chuSelect option:selected').text();
+          if ($('#syoSelect option:selected').val() != '') {
+            categoryName += '/' + $('#syoSelect option:selected').text();
+          }
+        }
+      }
+      $('#searchForm [name=categoryName]').val(categoryName);
+      $('#searchForm').submit();
+      return false;
+    });
+
+    // 大カテゴリープルダウン変更時のイベント処理設定
+    $('#daiSelect').on('change', function() {
+      createChuCategorySelect();
+    });
+
+    // 中カテゴリープルダウン変更時のイベント処理設定
+    $('#chuSelect').on('change', function() {
+      createSyoCategorySelect();
+    });
+
+    // 全カテゴリー情報取得
+    $.getJSON('./categories')
+      .done(function(jsonCategories) {
+        daiCategories = jsonCategories;
+        createDaiCategorySelect();
+      })
+      .fail(function() {
+        console.log('失敗');
+      })
+      .always(function() {
+      });
+  });
+</script>
+</head>
+<body>
+  <!-- navbar -->
+  <nav class="navbar navbar-inverse">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="./list.html">Rakus Items</a>
+    </div>
+    <div id="navbar" class="collapse navbar-collapse">
+      <div>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a id="logout" href="./login.html">Logout <i class="fa fa-power-off"></i></a></li>
+        </ul>
+        <p class="navbar-text navbar-right">
+          <span id="loginName">user: userName</span>
+        </p>
+      </div>
+    </div>
+  </nav>
+
+  <div id="main" class="container-fluid">
+    <!-- addItem link -->
+    <div id="addItemButton">
+      <a class="btn btn-default" href="./add.html"><i class="fa fa-plus-square-o"></i> Add New Item</a>
+    </div>
+
+    <!-- 検索フォーム -->
+    <div id="forms">
+      <form id="searchForm" method="POST" th:action="@{/item/search}" class="form-inline" role="form" th:object="${searchForm}">
+        <div class="form-group">
+          <input type="input" class="form-control" id="itemKeyword" placeholder="item name"/>
+        </div>
+        <div class="form-group"><i class="fa fa-plus"></i></div>
+        <div class="form-group">
+          <select id="daiSelect" class="form-control"></select><input type="hidden" th:field="*{daiCategoryId}" />
+          <select id="chuSelect" class="form-control"></select><input type="hidden" th:field="*{chuCategoryId}" />
+          <select id="syoSelect" class="form-control"></select><input type="hidden" th:field="*{syoCategoryId}" />
+        </div>
+        <div class="form-group"><i class="fa fa-plus"></i></div>
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="brand"/>
+        </div>
+        <div class="form-group"></div>
+        <input type="hidden" name="categoryName" />
+        <input type="hidden" th:field="*{page}" />
+        <button id="button-search" type="submit" class="btn btn-default"><i class="fa fa-angle-double-right"></i> 検索</button>
+      </form>
+    </div>
+
+    <!-- pagination -->
+    <div class="pages">
+      <nav class="page-nav">
+        <ul class="pager">
+          <li class="previous"><a href="#">&larr; prev</a></li>
+          <li class="next"><a href="#">next &rarr;</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- table -->
+    <div class="table-responsive">
+      <table id="item-table" class="table table-hover table-condensed">
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>price</th>
+            <th>category</th>
+            <th>brand</th>
+            <th>cond</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="item : ${itemList}">
+            <td class="item-name"><a th:href="@{/item/detail}" th:text="${item.name}">Razer BlackWidow Chroma Keyboard</a></td>
+            <td class="item-price" th:text="${item.price}">52.0</td>
+            <td class="item-category">
+              <a class="categoryLink" th:data-category="${item.daiCategoryName}" th:text="${item.daiCategoryName}">Electronics</a> /
+              <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName}" th:text="${item.chuCategoryName}">Computers &amp; Tablets</a> /
+              <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName} + '/' + ${item.syoCategoryName}" th:text="${item.syoCategoryName}">Components &amp; Parts</a></td>
+            <td class="item-brand"><a th:href="@{/item/search}" th:text="${item.brand}">Razer</a></td>
+            <td class="item-condition" th:text="${item.condition}">3</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- pagination -->
+    <div class="pages">
+      <nav class="page-nav">
+        <ul class="pager">
+          <li class="previous"><a href="#">&larr; prev</a></li>
+          <li class="next"><a href="#">next &rarr;</a></li>
+        </ul>
+      </nav>
+      <!-- ページ番号を指定して表示するフォーム -->
+      <div id="select-page">
+        <form class="form-inline">
+          <div class="form-group">
+            <div class="input-group col-xs-6">
+              <label></label>
+              <input type="text" class="form-control"/>
+              <!-- 総ページ数 -->
+              <div class="input-group-addon">/ <span th:text="${maxPage}">20</span></div>
+            </div>
+            <div class="input-group col-xs-1">
+              <button type="submit" class="btn btn-default">Go</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
