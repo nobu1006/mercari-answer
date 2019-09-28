@@ -3,6 +3,8 @@ package jp.co.rakus_partners.rakusitem.repository;
 import jp.co.rakus_partners.rakusitem.controller.ItemConroller;
 import jp.co.rakus_partners.rakusitem.entity.Item;
 import jp.co.rakus_partners.rakusitem.form.SearchForm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,6 +17,8 @@ import java.util.List;
 
 @Repository
 public class ItemRepository {
+
+    private static final Logger logger = LoggerFactory.getLogger(ItemRepository.class);
 
     private static final RowMapper<Item> ROW_MAPPER = new BeanPropertyRowMapper<>(Item.class);
 
@@ -56,13 +60,13 @@ public class ItemRepository {
             param.addValue("name_all", searchForm.getCategoryName() + "%");
         }
 
-        if (!"count".equals(mode)) {
-            Integer offset = ItemConroller.ROW_PAR_PAGE * (searchForm.getPage() - 1);
-            sql += " ORDER BY i.id";
-            sql += " LIMIT 30 OFFSET " + offset;
-        } else {
+        if ("count".equals(mode)) {
             sql = sql.replaceFirst("SELECT.+FROM", "SELECT count(*) FROM");
+        } else {
+            sql += " ORDER BY i.id";
+            sql += " LIMIT 30 OFFSET " + ItemConroller.ROW_PAR_PAGE * (searchForm.getPage() - 1);
         }
+        logger.info("sql = " + sql);
         return sql;
     }
 
