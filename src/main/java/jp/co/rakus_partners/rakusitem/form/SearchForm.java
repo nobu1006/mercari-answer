@@ -6,6 +6,8 @@ public class SearchForm {
 
     private String itemKeyword;
 
+    private String brand;
+
     // 検索には使用しない
     // 検索完了時、プルダウンの状態を維持するのにJSから使用する
     private Integer daiCategoryId;
@@ -62,4 +64,12 @@ public class SearchForm {
     public void setPage(Integer page) {
         this.page = page;
     }
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
 }

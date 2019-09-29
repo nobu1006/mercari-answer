@@ -107,7 +107,13 @@
       $('#searchForm [name=categoryName]').val($(this).data('category'));
       $('#searchForm [name=page]').val(1);
       $('#searchForm').submit();
-      return false;
+    });
+
+    // ブランド名リンククリック時のイベント処理設定
+    $('.brandLink').on('click', function() {
+      $('#searchForm [name=brand]').val($(this).text());
+      $('#searchForm [name=page]').val(1);
+      $('#searchForm').submit();
     });
 
     // 検索ボタンクリック時のイベント処理設定
@@ -204,7 +210,7 @@
     <form id="searchForm" method="POST" th:action="@{/item/search}" class="form-inline" role="form" th:object="${searchForm}">
       <div id="forms">
         <div class="form-group">
-          <input type="input" class="form-control" id="itemKeyword" placeholder="item name"/>
+          <input type="text" class="form-control" th:field="*{itemKeyword}" placeholder="Item keyword" />
         </div>
         <div class="form-group"><i class="fa fa-plus"></i></div>
         <div class="form-group">
@@ -214,7 +220,7 @@
         </div>
         <div class="form-group"><i class="fa fa-plus"></i></div>
         <div class="form-group">
-          <input type="text" class="form-control" placeholder="brand"/>
+          <input type="text" class="form-control" placeholder="brand" th:field="*{brand}" />
         </div>
         <div class="form-group"></div>
         <input type="hidden" name="categoryName" />
@@ -267,7 +273,7 @@
                 <a class="categoryLink" th:data-category="${item.daiCategoryName} + '/' + ${item.chuCategoryName} + '/' + ${item.syoCategoryName}" th:text="${item.syoCategoryName}">Components &amp; Parts</a>
               </div>
             </td>
-            <td class="item-brand"><a th:href="@{/item/search}" th:text="${item.brand}">Razer</a></td>
+            <td class="item-brand"><a class="brandLink" th:text="${item.brand}">Razer</a></td>
             <td class="item-condition" th:text="${item.condition}">3</td>
           </tr>
         </tbody>

@@ -55,11 +55,21 @@ public class ItemRepository {
                 sql += " LEFT JOIN category c ON c.id = i.category";
                 sql += " WHERE 1 = 1";
 
+        // カテゴリー
         if (!StringUtils.isEmpty(searchForm.getCategoryName())) {
             sql += " AND name_all LIKE :name_all";
             params.addValue("name_all", searchForm.getCategoryName() + "%");
         }
-
+        // 商品名（あいまい検索）
+        if (!StringUtils.isEmpty(searchForm.getItemKeyword())) {
+            sql += " AND i.name LIKE :name";
+            params.addValue("name", "%" + searchForm.getItemKeyword() + "%");
+        }
+        // ブランド名
+        if (!StringUtils.isEmpty(searchForm.getBrand())) {
+            sql += " AND brand = :brand";
+            params.addValue("brand", searchForm.getBrand());
+        }
         if ("count".equals(mode)) {
             sql = sql.replaceFirst("SELECT.+FROM", "SELECT count(*) FROM");
         } else {
