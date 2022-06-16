@@ -73,7 +73,7 @@ public class ItemRepository {
         if ("count".equals(mode)) {
             sql = sql.replaceFirst("SELECT.+FROM", "SELECT count(*) FROM");
         } else {
-            sql += " ORDER BY i.id";
+            sql += " ORDER BY i.name";
             sql += " LIMIT 30 OFFSET " + ItemConroller.ROW_PAR_PAGE * (searchForm.getPage() - 1);
         }
         logger.info("sql = " + sql);
